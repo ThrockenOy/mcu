@@ -55,9 +55,26 @@ void wmem_callback(const char* args);
 
 void get_adc_callback(const char* args)
 {
-
     float voltage_V = adc_task_read_voltage();
     printf("%f\n", voltage_V);
+}
+
+
+
+void get_temp_callback(const char* args)
+{
+    float temp_C = adc_task_read_temperature();
+    printf("%f\n", temp_C);
+}
+
+void tm_start_callback(const char* args)
+{
+    adc_task_set_state(ADC_TASK_STATE_RUN);
+}
+
+void tm_stop_callback(const char* args)
+{
+    adc_task_set_state(ADC_TASK_STATE_IDLE);
 }
 
 api_t device_api[] =
@@ -71,15 +88,18 @@ api_t device_api[] =
     {"mem", mem_callback, "read memory: mem <hex_addr>"},
     {"wmem", wmem_callback, "write memory: wmem <hex_addr> <hex_val>"},
     {"get_adc", get_adc_callback, "measure voltage on GPIO 26"},
+    {"get_temp", get_temp_callback, "measure temperature on GPIO 4"},
+    {"tm_start", tm_start_callback, "start continuous telemetry stream"},
+    {"tm_stop", tm_stop_callback, "stop continuous telemetry stream"},
 
-    {NULL, NULL, NULL},  // Маркер конца массива
+    {NULL, NULL, NULL},  
 };
 
 void help_callback(const char* args) {
     int i = 0;
 
     while (device_api[i].command_name != NULL) {
-        printf("Команда '%s': '%s'\n",
+        printf(" '%s': '%s'\n",
                 device_api[i].command_name,
                 device_api[i].command_help);
         i++;
@@ -128,6 +148,9 @@ int main()
         char* command_string = stdio_task_handle();
         protocol_task_handle(command_string);
         led_task_handle();
+        
+        // Р’СЃС‚Р°РІР»СЏРµРј С„РѕРЅРѕРІС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє РђР¦Рџ 
+        adc_task_handle();
     }
 
     return 0;

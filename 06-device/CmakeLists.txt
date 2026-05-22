@@ -1,4 +1,3 @@
-
 # Требуем минимальную версию cmake - типовая строчка для любого CMakeLists.txt
 cmake_minimum_required(VERSION 3.15)
 
@@ -10,16 +9,18 @@ set(PICO_PLATFORM rp2040)
 include(pico_sdk_import.cmake)
 
 # Создаем проект. Аргументом указывается имя проекта - типовая строчка для любого CMakeLists.txt
-project(02_control)
+project(06_device)
 
 # Вызываем функцию инициализации Pico SDK - специфика сборки под Pico
 pico_sdk_init()
+
+add_subdirectory("../libs/protocol" "${PROJECT_BINARY_DIR}/protocol")
+add_subdirectory("../libs/ili9341-driver" "${PROJECT_BINARY_DIR}/ili9341_driver")
 
 # Добавляем в проект файлы с исходным кодом - типовая строчка для любого CMakeLists.txt
 add_executable(${PROJECT_NAME}
 	${CMAKE_CURRENT_SOURCE_DIR}/main.c
 	${CMAKE_CURRENT_SOURCE_DIR}/stdio-task/stdio-task.c
-	${CMAKE_CURRENT_SOURCE_DIR}/protocol-task/protocol-task.c
 	${CMAKE_CURRENT_SOURCE_DIR}/led-task/led-task.c
 	${CMAKE_CURRENT_SOURCE_DIR}/adc-task/adc-task.c
 
@@ -28,7 +29,10 @@ add_executable(${PROJECT_NAME}
 # Указываем на какие библиотеки ссылается наш код - типовая строчка для любого CMakeLists.txt
 target_link_libraries(${PROJECT_NAME}
 	pico_stdlib
-	hardware_adc
+	hardware_spi
+	hardware_i2c
+	protocol
+	ili9341
 
 )
 
